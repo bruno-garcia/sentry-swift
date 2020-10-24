@@ -1,7 +1,7 @@
 public class Sentry {
     static private var hub: Hub?
 
-    public static func start(configure: (inout SentryOptions)->()) {
+    public static func start(configure: (inout SentryOptions)->()) throws {
         print("Sentry Init")
    
         var options = SentryOptions()
@@ -13,9 +13,11 @@ public class Sentry {
         // crashpad
 #elseif os(Windows)
         // crashpad
+#else
+        // throw PlatformNotSupported
 #endif
 
-        hub = Hub(client: SentryClient(options: options), options: options)
+        hub = Hub(client: try SentryClient(options: options), options: options)
     }
 
     public static func capture(message: String) {
