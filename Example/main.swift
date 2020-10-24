@@ -5,3 +5,7 @@ Sentry.start(configure: { o in
 });
 
 Sentry.capture(message: "hi swift!")
+
+let hey: Int? = nil
+// Can't unwrap nil:
+Sentry.capture(message: String(hey!))
