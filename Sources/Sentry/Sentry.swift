@@ -7,7 +7,7 @@ public class Sentry {
         var options = SentryOptions()
         configure(&options)
         
-#if !os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
         options.add(integration: PLCrashReporterIntegration())
 #elseif os(Linux)
         // crashpad

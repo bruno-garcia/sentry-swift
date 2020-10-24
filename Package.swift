@@ -21,7 +21,10 @@ let package = Package(
         .target(
             name: "Sentry",
             dependencies: [
-                .product(name: "CrashReporter", package: "PLCrashReporter"),
+                .product(
+                    name: "CrashReporter",
+                    package: "PLCrashReporter",
+                    condition: .when(platforms: [.macOS, .iOS, .watchOS, .tvOS])),
             ],
             exclude: ["Example"]),
         .target(
