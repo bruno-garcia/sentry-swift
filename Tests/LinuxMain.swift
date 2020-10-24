@@ -1,7 +1,7 @@
 import XCTest
 
-import sentry_swiftTests
+import SentryTests
 
 var tests = [XCTestCaseEntry]()
-tests += sentry_swiftTests.allTests()
+tests += SentryTests.allTests()
 XCTMain(tests)
