@@ -1,3 +1,6 @@
+// https://github.com/microsoft/plcrashreporter#prerequisites
+// Minimum supported platforms: iOS 9, macOS 10.9, tvOS 9, Mac Catalyst 13.0.
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
 import CrashReporter
 
 public struct PLCrashReporterIntegration: SentryIntegration {
@@ -33,3 +36,4 @@ public struct PLCrashReporterIntegration: SentryIntegration {
         crashReporter.purgePendingCrashReport()
     }
 }
+#endif

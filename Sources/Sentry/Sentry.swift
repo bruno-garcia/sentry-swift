@@ -7,13 +7,16 @@ public class Sentry {
         var options = SentryOptions()
         configure(&options)
         
-        // @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+#if !os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
         options.add(integration: PLCrashReporterIntegration())
+#elseif os(Linux)
+        // crashpad
+#elseif os(Windows)
+        // crashpad
+#endif
 
         hub = Hub(client: SentryClient(options: options), options: options)
     }
-
-    static func 
 
     public static func capture(message: String) {
         self.hub?.capture(message: message)
