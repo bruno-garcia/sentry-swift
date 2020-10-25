@@ -34,7 +34,7 @@ public struct SentryClient: ISentryClient {
     public func capture(event: SentryEvent, scope: Scope? = nil) {
         print("capturing event..")
 
-        var e = event
+        var e = prepare(event: event, scope: scope)
         if let processors = scope?.eventProcessors {
             var processedEvent: SentryEvent? = e
             for processor in processors {
@@ -57,6 +57,24 @@ public struct SentryClient: ISentryClient {
         send(event: e)
     }
 
+    private func prepare(event: SentryEvent, scope: Scope?) -> SentryEvent {
+        var e = event
+        if let s = scope {
+            if !s.tags.isEmpty {
+                if (e.tags == nil) {
+                    e.tags = s.tags
+                } else {
+                    for (k, v) in s.tags {
+                        if !e.tags!.keys.contains(k) {
+                            e.tags![k] = v
+                        }
+                    }
+                }
+            }
+        }
+        return e
+    }
+
     private func send(event: SentryEvent) {
         let session = URLSession.shared
         var request = URLRequest(url: dsn.envelopeUrl)
@@ -70,7 +88,7 @@ public struct SentryClient: ISentryClient {
             // let event_id = "f181ffbc78594984a99e7be7f50539dd"
             let event_id = event.id.uuidString // has dashes
             let header = try JSONSerialization.data(withJSONObject: ["event_id": event_id], options: [])
-            let payload = try JSONSerialization.data(withJSONObject: ["message": event.message, "event_id": event_id], options: [])
+            let payload = try JSONSerialization.data(withJSONObject: ["message": event.message, "event_id": event_id, "tags": event.tags], options: [])
             let itemHeader = try JSONSerialization.data(withJSONObject: ["type": "event", "length": payload.count], options: [])
 
             var data = Data()

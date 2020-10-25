@@ -46,6 +46,8 @@ public class Hub: ISentryClient {
 public class Scope {
     private var _eventProcessors = [EventProcessor]()
 
+    public var tags = Dictionary<String, String>()
+
     public var eventProcessors: [EventProcessor]! {
         get { return _eventProcessors }
     }

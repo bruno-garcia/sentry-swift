@@ -9,6 +9,7 @@ public class Sentry {
         
 #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
         options.add(integration: PLCrashReporterIntegration())
+
 #if os(macOS)
         options.add(integration: MacOSIntegration())
 #elseif os(iOS)
@@ -26,6 +27,7 @@ public class Sentry {
         // crashpad
 #else
         // throw PlatformNotSupported
+
 #endif
 
         hub = Hub(client: try SentryClient(options: options), options: options)

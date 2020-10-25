@@ -22,6 +22,7 @@ do {
 
 Sentry.configure(scope: { o in
     o.add(eventProcessor: ExampleProcessor())
+    o.tags["key"] = "val"
 })
 
 // let os = ProcessInfo().operatingSystemVersion
