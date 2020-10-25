@@ -9,7 +9,7 @@ final class SentryTests: XCTestCase {
 
     func testValidDsnParse() throws {
         let dsn = try Dsn(dsn: URL(string: "https://a@b/1")!)
-        XCTAssertEqual(dsn.envelope.absoluteString, "https://b:443/api/1/envelope/")
+        XCTAssertEqual(dsn.envelopeUrl.absoluteString, "https://b:443/api/1/envelope/")
         XCTAssertEqual(dsn.publicKey, "a")
     }
 

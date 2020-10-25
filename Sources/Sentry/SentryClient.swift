@@ -1,7 +1,8 @@
 import Foundation
 
 public protocol ISentryClient {
-    func capture(event: SentryEvent)
+    func capture(event: SentryEvent, scope: Scope?)
+    func close()
 }
 
 enum SentryInitError: Error {
@@ -27,14 +28,88 @@ public struct SentryClient: ISentryClient {
         self.dsn = try Dsn(dsn: dsnUrl)
     }
 
-    public func capture(event: SentryEvent) {
+    public func capture(event: SentryEvent, scope: Scope? = nil) {
         print("capturing event..")
+
+        var e = event
+        if let processors = scope?.eventProcessors {
+            var processedEvent: SentryEvent? = e
+            for processor in processors {
+                processedEvent = processor.process(event: &processedEvent!)
+                if processedEvent == nil {
+                    print("Processor '\(type(of: processor))' dropped the event")
+                    return
+                }
+                e = processedEvent!;
+            }
+        }
+        if let beforeSend = self.options.beforeSend {
+            if let beforeSendEvent = beforeSend(&e) {
+                e = beforeSendEvent
+            } else {
+                print("dropped by beforeSend")
+                return
+            }
+        }
+        send(event: e)
+    }
+
+    private func send(event: SentryEvent) {
+        let session = URLSession.shared
+        var request = URLRequest(url: dsn.envelopeUrl)
+        request.httpMethod = "POST"
+        let timestamp = Int(Date().timeIntervalSince1970)
+        let auth = "Sentry sentry_version=6,sentry_client=sentry.swift/0.0.1,sentry_key=\(self.dsn.publicKey),sentry_timestamp=\(timestamp)"
+        print(auth)
+        request.setValue(auth, forHTTPHeaderField: "X-Sentry-Auth")
+
+        do {
+            let event_id = "f181ffbc78594984a99e7be7f50539dd"
+            let header = try JSONSerialization.data(withJSONObject: ["event_id": event_id], options: [])
+            let payload = try JSONSerialization.data(withJSONObject: ["message": event.message, "event_id": event_id], options: [])
+            let itemHeader = try JSONSerialization.data(withJSONObject: ["type": "event", "length": payload.count], options: [])
+
+            var data = Data()
+            data.append(header)
+            data.append(Data("\n".utf8))
+            data.append(itemHeader)
+            data.append(Data("\n".utf8))
+            data.append(payload)
+            print(String(data: data, encoding: .utf8)!)
+            let task = session.uploadTask(with: request, from: data) { 
+                data,
+                response,
+                error in
+                if (error != nil) {
+                    print("err: \(String(describing:error))")
+                }
+                if let httpResponse = response as? HTTPURLResponse {
+                    print(httpResponse.statusCode)
+                }
+#if DEBUG
+                print("response: \(String(describing: response))")
+#endif
+            }
+
+            task.resume()
+
+        } catch {
+            print("Failed capturing: \(error)")
+        }
+    }
+
+    public func close() {
+        // TODO: Block while sessions open in the background:
+        do {
+            RunLoop.current.run(until: Date() + 2)
+        }
+        print("done")
     }
 }
 
 public extension ISentryClient {
-    func capture(message: String) {
-        capture(event: SentryEvent(message: message))
+    func capture(message: String, scope: Scope? = nil) {
+        capture(event: SentryEvent(message: message), scope: scope)
     }
 }
 
@@ -43,7 +118,7 @@ public struct SentryEvent {
 }
 
 internal struct Dsn {
-    public let envelope: URL
+    public let envelopeUrl: URL
     public let publicKey: String
 
     public init(dsn: URL) throws {
@@ -56,7 +131,7 @@ internal struct Dsn {
 
             if dsn.host != nil && dsn.scheme != nil && dsn.scheme!.starts(with: "http") {
                 if let envelopeUrl = URL(string: "\(dsn.scheme!)://\(dsn.host!):\(dsn.port ?? (dsn.scheme == "https" ? 443 : 80))/api/\(project)/envelope/") {
-                    envelope = envelopeUrl
+                    self.envelopeUrl = envelopeUrl
                     return
                 }
             }
