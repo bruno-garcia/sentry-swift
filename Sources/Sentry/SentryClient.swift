@@ -1,5 +1,8 @@
 import Foundation
-
+#if os(Linux)
+// error: 'URLSession' is unavailable: This type has moved to the FoundationNetworking module. Import that module to use it.
+import FoundationNetworking
+#endif
 public protocol ISentryClient {
     func capture(event: SentryEvent, scope: Scope?)
     func close()
