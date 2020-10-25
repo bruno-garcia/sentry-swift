@@ -67,7 +67,8 @@ public struct SentryClient: ISentryClient {
         request.setValue(auth, forHTTPHeaderField: "X-Sentry-Auth")
 
         do {
-            let event_id = "f181ffbc78594984a99e7be7f50539dd"
+            // let event_id = "f181ffbc78594984a99e7be7f50539dd"
+            let event_id = event.id.uuidString // has dashes
             let header = try JSONSerialization.data(withJSONObject: ["event_id": event_id], options: [])
             let payload = try JSONSerialization.data(withJSONObject: ["message": event.message, "event_id": event_id], options: [])
             let itemHeader = try JSONSerialization.data(withJSONObject: ["type": "event", "length": payload.count], options: [])
@@ -114,10 +115,6 @@ public extension ISentryClient {
     func capture(message: String, scope: Scope? = nil) {
         capture(event: SentryEvent(message: message), scope: scope)
     }
-}
-
-public struct SentryEvent {
-    public var message: String?
 }
 
 internal struct Dsn {
