@@ -29,10 +29,11 @@ Sentry.configure(scope: { o in
 // print(os)
 
 
-Sentry.capture(message: "hi swift!")
+// Sentry.capture(message: "hi swift!")
+
+// So far it's only simulating it by blocking for 2 seconds
+Sentry.close()
 
 let hey: Int? = nil
-// Can't unwrap nil:
-// Sentry.capture(message: String(hey!))
-
-Sentry.close()
+// Can't unwrap nil, crashes:
+Sentry.capture(message: String(hey!))
