@@ -7,27 +7,26 @@ public class Sentry {
         var options = SentryOptions()
         configure(&options)
         
-#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
-        options.add(integration: PLCrashReporterIntegration())
-
 #if os(macOS)
         options.add(integration: MacOSIntegration())
 #elseif os(iOS)
         options.add(integration: IOSIntegration())
 #elseif os(watchOS)
         options.add(integration: WatchOSIntegration())
-#else
+#elseif os(tvOS)
         options.add(integration: TvOSIntegration())
-#endif
-
 #elseif os(Linux)
-        // crashpad
         options.add(integration: LinuxIntegration())
+        // crashpad
 #elseif os(Windows)
+        options.add(integration: WindowsIntegration())
         // crashpad
 #else
         // throw PlatformNotSupported
+#endif
 
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+        options.add(integration: PLCrashReporterIntegration())
 #endif
 
         hub = Hub(client: try SentryClient(options: options), options: options)
