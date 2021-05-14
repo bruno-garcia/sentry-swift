@@ -9,6 +9,15 @@
           "revision": "6b7ca9a2faad6ea990ff60b0a3ee4fdf3db59150",
           "version": "1.7.2"
         }
+      },
+      {
+        "package": "Breakpad",
+        "repositoryURL": "/Users/bruno/git/swift-breakpad",
+        "state": {
+          "branch": "main",
+          "revision": "cf36133df81b9ece8ca958fcbee4cfa61b4555ea",
+          "version": null
+        }
       }
     ]
   },

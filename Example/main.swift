@@ -36,4 +36,4 @@ Sentry.close()
 
 let hey: Int? = nil
 // Can't unwrap nil, crashes:
-Sentry.capture(message: String(hey!))
+// Sentry.capture(message: String(hey!))
