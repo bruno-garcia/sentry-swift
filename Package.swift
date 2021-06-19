@@ -15,7 +15,8 @@ let package = Package(
             targets: ["Sentry"]),
     ],
     dependencies: [
-        .package(name: "PLCrashReporter", url: "https://github.com/microsoft/plcrashreporter.git", .upToNextMajor(from: "1.7.2"))
+        .package(name: "PLCrashReporter", url: "https://github.com/microsoft/plcrashreporter.git", .upToNextMajor(from: "1.7.2")),
+        .package(name: "Breakpad", url: "../swift-breakpad/", .branch("main"))
     ],
     targets: [
         .target(
@@ -25,6 +26,10 @@ let package = Package(
                     name: "CrashReporter",
                     package: "PLCrashReporter",
                     condition: .when(platforms: [.macOS, .iOS, .watchOS, .tvOS])),
+                .product(
+                    name: "Breakpad",
+                    package: "Breakpad",
+                    condition: .when(platforms: [.linux, .macOS])), // macOS for testing
             ],
             exclude: ["Example"]),
         .target(
@@ -38,3 +43,16 @@ let package = Package(
             ]),
     ]
 )
+
+
+// https://github.com/stephencelis/SQLite.swift/blob/master/Package.swift
+// #if os(Linux)
+//     package.dependencies = [.package(url: "https://github.com/stephencelis/CSQLite.git", from: "0.0.3")]
+//     package.targets = [
+//         .target(name: "SQLite", exclude: ["Extensions/FTS4.swift", "Extensions/FTS5.swift"]),
+//         .testTarget(name: "SQLiteTests", dependencies: ["SQLite"], path: "Tests/SQLiteTests", exclude: [
+//             "FTS4Tests.swift",
+//             "FTS5Tests.swift"
+//         ])
+//     ]
+// #endif
